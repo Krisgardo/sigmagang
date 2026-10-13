@@ -1,0 +1,34 @@
+name: Construir ejecutables
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyInstaller
+        run: pip install pyinstaller
+
+      - name: Generar ejecutable
+        run: pyinstaller --onefile --windowed --name quiz_paris main.py
+
+      - name: Subir ejecutable
+        uses: actions/upload-artifact@v4
+        with:
+          name: quiz_paris-${{ matrix.os }}
+          path: dist/*
+        
